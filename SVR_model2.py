@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.svm import SVR
+import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error
@@ -105,18 +106,65 @@ print(f"Root Mean Squared Error (RMSE): {rmse:.3f}")
 print(f"Mean Absolute Error (MAE): {mae:.3f}")
 print(f"Mean Absolute Percentage Error (MAPE): {mape:.3f}%")
 
-# --- 8. Visualize Results ---
-plt.figure(figsize=(15, 7))
+# --- 8. Complete Visualization ---
+plt.figure(figsize=(15, 8))
 
 # Plot actual training data
-
 actual_train_index_start = n_lags + (len(df) - len(data))
 actual_train_index = df.index[actual_train_index_start : actual_train_index_start + train_size]
 plt.plot(actual_train_index, y_train, label='Training Data (Actual)', color='blue', alpha=0.7)
 
-
 # Plot actual test data
-
+plt.plot(test_index, y_test, label='Test Data (Actual)', color='green', linewidth=2)
 
 # Plot SVR predictions
+plt.plot(test_index, predictions, label='SVR Predictions', color='red', linewidth=2, linestyle='--')
 
+plt.title('Solar Irradiance Forecasting using SVR', fontsize=16, fontweight='bold')
+plt.xlabel('Date', fontsize=12)
+plt.ylabel('Solar Irradiance', fontsize=12)
+plt.legend(fontsize=12)
+plt.grid(True, alpha=0.3)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Actual vs Predicted Scatter Plot ---
+plt.figure(figsize=(8, 6))
+plt.scatter(y_test, predictions, color='purple', alpha=0.6)
+plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='black', linestyle='--', linewidth=2)
+plt.title('Actual vs Predicted Values', fontsize=14, fontweight='bold')
+plt.xlabel('Actual Solar Irradiance', fontsize=12)
+plt.ylabel('Predicted Solar Irradiance', fontsize=12)
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Residual Distribution Plot 
+residuals = y_test - predictions
+plt.figure(figsize=(8, 6))
+sns.histplot(residuals, bins=50, kde=True, color='teal')
+plt.title('Residual Distribution (Actual - Predicted)', fontsize=14, fontweight='bold')
+plt.xlabel('Residuals', fontsize=12)
+plt.ylabel('Frequency', fontsize=12)
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+#  Bar Chart of Error Metrics ---
+metrics = ['RMSE', 'MAE', 'MAPE']
+values = [rmse, mae, mape]
+
+plt.figure(figsize=(8, 6))
+bars = plt.bar(metrics, values, color=['steelblue', 'orange', 'green'])
+plt.title('Error Metrics Comparison', fontsize=14, fontweight='bold')
+plt.ylabel('Value', fontsize=12)
+plt.grid(True, axis='y', alpha=0.3)
+plt.tight_layout()
+
+# Annotate bars with values
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width() / 2, height, f'{height:.2f}', ha='center', va='bottom', fontsize=10)
+
+plt.show()
